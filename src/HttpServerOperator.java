@@ -14,6 +14,8 @@ public class HttpServerOperator {
     private int port;
     private Path path;
 
+    private static boolean verbose = false;
+
     protected static FileServerOperator fileServer;
 
     public HttpServerOperator(int port) {
@@ -44,6 +46,22 @@ public class HttpServerOperator {
 
     }
 
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setPath(String path) {
+        this.path = FileSystems.getDefault().getPath(path).toAbsolutePath();
+    }
+
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
+    }
+
+    public static boolean isVerbose() {
+        return verbose;
+    }
+
     public void initializeServer() {
 
         try {
@@ -52,7 +70,7 @@ public class HttpServerOperator {
 
             HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
-            System.out.println("Server started.");
+            System.out.println("Server started at port " + port);
 
             server.createContext("/", new GetHandler());
 

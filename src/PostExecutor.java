@@ -13,7 +13,11 @@ public class PostExecutor implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
 
-        System.out.println("POST request received.");
+        boolean verbose = HttpServerOperator.isVerbose();
+
+        if (verbose) {
+            System.out.println("POST Request received. Servicing.");
+        }
 
         Map<String, Object> parameters = new LinkedHashMap<String, Object>();
         InputStreamReader isr = new InputStreamReader(httpExchange.getRequestBody(), "utf-8");
@@ -22,10 +26,18 @@ public class PostExecutor implements HttpHandler {
         List<String> contents = new ArrayList<String>();
         String line;
 
+        if (verbose) {
+            System.out.println("Acquiring message body for file transcription.");
+        }
+
         while ((line = br.readLine()) != null) {
 
             contents.add(line);
 
+        }
+
+        if (verbose) {
+            System.out.println("Message body acquired as: \n" + contents);
         }
 
         String query = httpExchange.getRequestURI().getRawQuery();
@@ -40,7 +52,15 @@ public class PostExecutor implements HttpHandler {
 
         Path file = Paths.get(entry.getValue().toString());
 
+        if (verbose) {
+            System.out.println("Writing file: " + file.toString());
+        }
+
         Files.write(file, contents, Charset.forName("UTF-8"));
+
+        if (verbose) {
+            System.out.println("File written to system. Replying 200.");
+        }
 
         String response = "File received and written as " + entry.getValue().toString();
 
