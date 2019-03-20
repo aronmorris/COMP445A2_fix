@@ -14,7 +14,11 @@ public class HttpServerOperator {
     private int port;
     private Path path;
 
+    private HttpServer server;
+
     private static boolean verbose = false;
+
+    private static HttpServerOperator instance;
 
     protected static FileServerOperator fileServer;
 
@@ -62,19 +66,27 @@ public class HttpServerOperator {
         return verbose;
     }
 
+    public static HttpServerOperator getServerInstance() {
+        return instance;
+    }
+
     public void initializeServer() {
+
+        instance = this;
 
         try {
 
             this.fileServer = new FileServerOperator(path);
 
-            HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+            server = HttpServer.create(new InetSocketAddress(port), 0);
 
             System.out.println("Server started at port " + port);
 
             server.createContext("/", new GetHandler());
 
             server.createContext("/post", new PostExecutor());
+
+            server.createContext("/kill", new KillExecutor());
 
             server.setExecutor(null); //Can be changed later with an Executor for multithreading
 
@@ -84,6 +96,12 @@ public class HttpServerOperator {
             e.printStackTrace();
         }
 
+
+    }
+
+    protected void shutdownServer() {
+
+        server.stop(0);
 
     }
 
